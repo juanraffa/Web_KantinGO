@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KantinGO | Digital Order & Reviews</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+
+        /* Base Styles */
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b0f1a;
+            scroll-behavior: smooth;
+        }
+
+        /* Common Classes */
+        .glass {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Navigation */
+        .tab-btn.active {
+            color: #f97316;
+            border-bottom: 3px solid #f97316;
+        }
+
+        /* Badges */
+        .best-seller-badge {
+            background: linear-gradient(90deg, #ff4d4d, #f97316);
+            animation: pulse 2s infinite;
+        }
+
+        /* Logo Animation */
+        .logo-float {
+            animation: floating 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 15px rgba(249, 115, 22, 0.3));
+        }
+
+        /* Images */
+        .img-portrait {
+            aspect-ratio: 4 / 5;
+            object-fit: cover;
+        }
+
+        .img-landscape {
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+        }
+
+        /* Rating Stars */
+        .star-rating {
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .star-rating.active {
+            color: #f97316;
+            transform: scale(1.2);
+        }
+
+        /* Animations */
+        @keyframes floating {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(249, 115, 22, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(249, 115, 22, 0);
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #f97316;
+            border-radius: 10px;
+        }
+
+        /* Promo Badge */
+        .promo-badge {
+            background: linear-gradient(135deg, #ec4899, #f97316);
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Chat Widget */
+        .chat-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 99;
+        }
+
+        .chat-bubble {
+            max-height: 400px;
+            min-height: 50px;
+        }
+
+        .chat-messages {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .message {
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            max-width: 90%;
+            word-wrap: break-word;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: #f97316;
+            color: white;
+        }
+
+        .message.admin {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="text-slate-200">
+
+    <div id="login-page" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0b0f1a]">
+        <div class="p-10 rounded-[3.5rem] glass border-orange-500/20 w-full max-w-md text-center animate__animated animate__zoomIn">
+            <div class="mb-6 flex justify-center">
+                <img src="logo.png" alt="KantinGO Logo" class="w-32 h-32 object-contain logo-float">
+            </div>
+            <h1 class="text-2xl font-black mb-1 text-white uppercase tracking-tighter">Kantin<span class="text-orange-500">GO</span></h1>
+            <p class="text-slate-400 mb-8 font-medium italic text-xs">"Food & Drink Delivery Solutions"</p>
+            <form id="login-form" class="space-y-4">
+                <input type="text" id="username" placeholder="Masukkan Nama Anda" class="w-full p-5 bg-slate-900/50 border border-slate-700 rounded-2xl outline-none focus:border-orange-500 text-white text-center font-bold transition-all" required>
+                <button class="w-full py-5 bg-gradient-to-r from-[#ff4d4d] to-[#f97316] rounded-2xl font-black text-white hover:scale-105 transition-all shadow-lg uppercase tracking-widest">Mulai Order</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="main-app" class="hidden min-h-screen pb-20">
+        <nav class="glass sticky top-0 z-50 px-6 py-4 flex justify-between items-center border-b border-white/5">
+            <div class="flex items-center gap-3">
+                <img src="logo.png" alt="Logo" class="w-8 h-8 object-contain">
+                <span class="font-black text-xl tracking-tighter text-white uppercase">Kantin<span class="text-orange-500">GO</span></span>
+            </div>
+            <div class="text-right">
+                <p id="display-name" class="text-sm font-bold text-white capitalize"></p>
+                <p class="text-[10px] text-orange-500 font-bold uppercase tracking-widest">Selamat Datang</p>
+            </div>
+        </nav>
+
+        <main class="container mx-auto p-4 lg:p-8 flex flex-col lg:flex-row gap-8">
+            <div class="lg:w-2/3">
+                <div class="mb-8 space-y-4">
+                    <!-- Promo Section -->
+                    <div id="promo-banner" class="promo-badge p-4 rounded-2xl text-center text-white font-bold text-sm cursor-pointer hidden" onclick="showPromoModal()">
+                        🎉 ADA PROMO SPESIAL! Klik untuk lihat
+                    </div>
+
+                    <div class="relative">
+                        <input type="text" id="search-input" onkeyup="searchMenu()" placeholder="Cari menu favoritmu..." class="w-full p-5 pl-12 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-orange-500 transition-all">
+                        <svg class="w-5 h-5 absolute left-4 top-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+
+                    <div class="flex gap-6 overflow-x-auto pb-2 border-b border-white/5">
+                        <button onclick="changeTab('makanan')" id="tab-makanan" class="tab-btn active px-2 py-3 font-bold text-xs uppercase tracking-widest whitespace-nowrap">🍱 Makanan</button>
+                        <button onclick="changeTab('minuman')" id="tab-minuman" class="tab-btn px-2 py-3 font-bold text-xs uppercase tracking-widest whitespace-nowrap">🥤 Minuman</button>
+                        <button onclick="changeTab('snack')" id="tab-snack" class="tab-btn px-2 py-3 font-bold text-xs uppercase tracking-widest whitespace-nowrap">🍟 Snack</button>
+                        <button onclick="showHistory()" class="px-2 py-3 font-bold text-xs uppercase tracking-widest whitespace-nowrap text-blue-400 hover:text-blue-300">📋 History</button>
+                    </div>
+                </div>
+                <div id="menu-grid" class="grid animate__animated animate__fadeIn"></div>
+
+                <div class="mt-16">
+                    <h3 class="text-xl font-black mb-6 flex items-center gap-3 uppercase tracking-tighter">
+                        <span class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white text-sm">★</span>
+                        Ulasan Pelanggan
+                    </h3>
+                    <div id="reviews-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="glass p-5 rounded-3xl border-white/5 hover:border-orange-500/20 transition-all animate__animated animate__fadeInLeft">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="font-bold text-sm text-white">Radit</p>
+                                <div class="text-orange-500 text-xs font-black">★★★★★</div>
+                            </div>
+                            <p class="text-slate-400 text-xs italic leading-relaxed">"Ayam Gepreknya gila enak bro! Sambalnya pedas banget tapi tetep enak, porsi gede pula 👌"</p>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border-white/5 hover:border-orange-500/20 transition-all animate__animated animate__fadeInLeft" style="animation-delay: 0.1s;">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="font-bold text-sm text-white">Zara</p>
+                                <div class="text-orange-500 text-xs font-black">★★★★★</div>
+                            </div>
+                            <p class="text-slate-400 text-xs italic leading-relaxed">"Es Jeruknya bener-bener seger! Udah dingin plus asam-asimannya pas, harga pun cukup murah sis"</p>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border-white/5 hover:border-orange-500/20 transition-all animate__animated animate__fadeInLeft" style="animation-delay: 0.2s;">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="font-bold text-sm text-white">Iqbal</p>
+                                <div class="text-orange-500 text-xs font-black">★★★★☆</div>
+                            </div>
+                            <p class="text-slate-400 text-xs italic leading-relaxed">"Nasi goreng-nya enak sih, cuma packagingnya agak berantakan. Tapi ya rasa nya tetap top!"</p>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border-white/5 hover:border-orange-500/20 transition-all animate__animated animate__fadeInLeft" style="animation-delay: 0.3s;">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="font-bold text-sm text-white">Sinta</p>
+                                <div class="text-orange-500 text-xs font-black">★★★★★</div>
+                            </div>
+                            <p class="text-slate-400 text-xs italic leading-relaxed">"Basreng sama risol mayo-nya mantul! Cocok banget buat ngemil sambil gaming, harga pas di kantong"</p>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border-white/5 hover:border-orange-500/20 transition-all animate__animated animate__fadeInLeft" style="animation-delay: 0.4s;">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="font-bold text-sm text-white">Zaki</p>
+                                <div class="text-orange-500 text-xs font-black">★★★★☆</div>
+                            </div>
+                            <p class="text-slate-400 text-xs italic leading-relaxed">"Bakso urat-nya mantap! Kuah-nya gurih, tapi agak lama antrinya. Tapi worth it sih 💯"</p>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border-white/5 hover:border-orange-500/20 transition-all animate__animated animate__fadeInLeft" style="animation-delay: 0.5s;">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="font-bold text-sm text-white">Kirana</p>
+                                <div class="text-orange-500 text-xs font-black">★★★☆☆</div>
+                            </div>
+                            <p class="text-slate-400 text-xs italic leading-relaxed">"Mie ayam-nya ya gitu aja sih, tapi es teh manis-nya bener seger dan dingin. Puas!"</p>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border-white/5 hover:border-orange-500/20 transition-all animate__animated animate__fadeInLeft" style="animation-delay: 0.6s;">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="font-bold text-sm text-white">Nabil</p>
+                                <div class="text-orange-500 text-xs font-black">★★★★★</div>
+                            </div>
+                            <p class="text-slate-400 text-xs italic leading-relaxed">"Mie Rebus-nya enak banget! Bumbu-nya pas, mie-nya lembut, harga murah. Balik lagi deh!"</p>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border-white/5 hover:border-orange-500/20 transition-all animate__animated animate__fadeInLeft" style="animation-delay: 0.7s;">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="font-bold text-sm text-white">Dina</p>
+                                <div class="text-orange-500 text-xs font-black">★★☆☆☆</div>
+                            </div>
+                            <p class="text-slate-400 text-xs italic leading-relaxed">"Nasi Uduk-nya kurang gurih menurut saya. Isinya juga agak dikit. Bisa diperbaiki"</p>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border-white/5 hover:border-orange-500/20 transition-all animate__animated animate__fadeInLeft" style="animation-delay: 0.8s;">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="font-bold text-sm text-white">Yoga</p>
+                                <div class="text-orange-500 text-xs font-black">★★★★★</div>
+                            </div>
+                            <p class="text-slate-400 text-xs italic leading-relaxed">"Sate Ayam-nya juara! Bumbu kacang-nya lezat, daging empuk, harga pun masuk akal banget"</p>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border-white/5 hover:border-orange-500/20 transition-all animate__animated animate__fadeInLeft" style="animation-delay: 0.9s;">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="font-bold text-sm text-white">Ayu</p>
+                                <div class="text-orange-500 text-xs font-black">★★★☆☆</div>
+                            </div>
+                            <p class="text-slate-400 text-xs italic leading-relaxed">"Matcha Latte-nya lumayan enak sih, tapi agak mahal buat sekali minum. Terlalu manis"</p>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border-white/5 hover:border-orange-500/20 transition-all animate__animated animate__fadeInLeft" style="animation-delay: 1s;">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="font-bold text-sm text-white">Reza</p>
+                                <div class="text-orange-500 text-xs font-black">★★★★★</div>
+                            </div>
+                            <p class="text-slate-400 text-xs italic leading-relaxed">"Gorengan-nya renyah dan nggak berminyak! Murah pula, cocok buat teman nonton bola malam"</p>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border-white/5 hover:border-orange-500/20 transition-all animate__animated animate__fadeInLeft" style="animation-delay: 1.1s;">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="font-bold text-sm text-white">Vina</p>
+                                <div class="text-orange-500 text-xs font-black">★★★★☆</div>
+                            </div>
+                            <p class="text-slate-400 text-xs italic leading-relaxed">"Siomay-nya lumayan, tapi kuah kacangnya agak tebel. Tapi menu-nya unik dan seger!"</p>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border-white/5 hover:border-orange-500/20 transition-all animate__animated animate__fadeInLeft" style="animation-delay: 1.2s;">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="font-bold text-sm text-white">Fauzan</p>
+                                <div class="text-orange-500 text-xs font-black">★★★★★</div>
+                            </div>
+                            <p class="text-slate-400 text-xs italic leading-relaxed">"Cappucino-nya creamy banget! Kopi-nya nggak pahit, pas di lidah. Bagusan dari kafe 😍"</p>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border-white/5 hover:border-orange-500/20 transition-all animate__animated animate__fadeInLeft" style="animation-delay: 1.3s;">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="font-bold text-sm text-white">Safa</p>
+                                <div class="text-orange-500 text-xs font-black">★★★★☆</div>
+                            </div>
+                            <p class="text-slate-400 text-xs italic leading-relaxed">"Bakso Tusuk-nya enak banget dan praktis! Cocok buat jajan di sekolah. Harganya terjangkau"</p>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border-white/5 hover:border-orange-500/20 transition-all animate__animated animate__fadeInLeft" style="animation-delay: 1.4s;">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="font-bold text-sm text-white">Aryo</p>
+                                <div class="text-orange-500 text-xs font-black">★★☆☆☆</div>
+                            </div>
+                            <p class="text-slate-400 text-xs italic leading-relaxed">"Batagor-nya lumayan sih tapi agak aneh rasanya. Berasa nggak fresh gitu. Kurang suka"</p>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border-white/5 hover:border-orange-500/20 transition-all animate__animated animate__fadeInLeft" style="animation-delay: 1.5s;">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="font-bold text-sm text-white">Hana</p>
+                                <div class="text-orange-500 text-xs font-black">★★★★★</div>
+                            </div>
+                            <p class="text-slate-400 text-xs italic leading-relaxed">"Pisang Coklat-nya bikin nagih! Cokelatnya melimpah, pisangnya lembut. Recommended! 🍌"</p>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border-white/5 hover:border-orange-500/20 transition-all animate__animated animate__fadeInLeft" style="animation-delay: 1.6s;">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="font-bold text-sm text-white">Deva</p>
+                                <div class="text-orange-500 text-xs font-black">★★★★★</div>
+                            </div>
+                            <p class="text-slate-400 text-xs italic leading-relaxed">"Es Buah-nya super seger! Buah-buahnya fresh dan banyak, dikasih es batu plus sirup 💯"</p>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border-white/5 hover:border-orange-500/20 transition-all animate__animated animate__fadeInLeft" style="animation-delay: 1.7s;">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="font-bold text-sm text-white">Nisa</p>
+                                <div class="text-orange-500 text-xs font-black">★★★☆☆</div>
+                            </div>
+                            <p class="text-slate-400 text-xs italic leading-relaxed">"Mie Goreng-nya enak tapi porsinya kurang banyak buat harganya. Cukup lah untuk ngemil"</p>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border-white/5 hover:border-orange-500/20 transition-all animate__animated animate__fadeInLeft" style="animation-delay: 1.8s;">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="font-bold text-sm text-white">Kia</p>
+                                <div class="text-orange-500 text-xs font-black">★★★★★</div>
+                            </div>
+                            <p class="text-slate-400 text-xs italic leading-relaxed">"Jus Mangga-nya asli segar dari mangga beneran! Nggak pake yang instan. Nagih banget! 🥭"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:w-1/3">
+                <div class="glass p-6 rounded-[2.5rem] sticky top-28 border border-white/5 shadow-2xl">
+                    <h3 class="text-lg font-bold mb-6 flex items-center gap-2">🛒 Keranjang</h3>
+                    <div id="cart-list" class="space-y-4 mb-8 max-h-[350px] overflow-y-auto pr-2"></div>
+
+                    <!-- Promo Code Input -->
+                    <div class="border-t border-white/10 pt-4 mb-4 space-y-2">
+                        <div class="flex gap-2">
+                            <input type="text" id="promo-code" placeholder="Kode promo..." class="flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white outline-none focus:border-orange-500">
+                            <button onclick="applyPromo()" class="px-3 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-xs font-bold text-white transition-all">Pakai</button>
+                        </div>
+                        <div id="promo-discount" class="text-[10px] text-green-400 font-bold hidden"></div>
+                    </div>
+
+                    <div class="space-y-4 border-t border-white/10 pt-6">
+                        <div class="flex gap-2">
+                            <button onclick="setPay('qris')" id="btn-qris" class="flex-1 py-3 rounded-xl border-2 border-orange-500 bg-orange-500/10 text-orange-500 font-bold text-[10px] transition-all">QRIS</button>
+                            <button onclick="setPay('cash')" id="btn-cash" class="flex-1 py-3 rounded-xl border-2 border-slate-700 text-slate-500 font-bold text-[10px] transition-all">CASH</button>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-400 font-bold">Total</span>
+                            <span id="total-price" class="text-2xl font-black text-orange-500">Rp 0</span>
+                        </div>
+                        <button onclick="checkout()" class="w-full py-4 bg-gradient-to-r from-[#ff4d4d] to-[#f97316] rounded-2xl font-black text-white hover:scale-105 transition-all shadow-xl uppercase tracking-widest text-sm">Konfirmasi Pesanan</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/95 backdrop-blur-md p-4">
+        <div id="modal-content" class="glass p-10 rounded-[3rem] max-w-sm w-full text-center border-orange-500/30 shadow-2xl">
+            <div id="modal-body" class="animate__animated animate__fadeInUp"></div>
+        </div>
+    </div>
+
+    <!-- Live Chat Widget -->
+    <div class="chat-widget">
+        <div id="chat-bubble" class="glass rounded-[2rem] p-4 chat-bubble border border-white/5 shadow-2xl hidden flex flex-col" style="width: 320px;">
+            <div class="flex justify-between items-center mb-3">
+                <h4 class="font-bold text-sm text-white">💬 KantinGO Support</h4>
+                <button onclick="toggleChat()" class="text-slate-400 hover:text-white text-lg">×</button>
+            </div>
+            <div id="chat-messages" class="flex-1 overflow-y-auto mb-3 min-h-[200px] chat-messages"></div>
+            <div class="flex gap-2">
+                <input type="text" id="chat-input" placeholder="Ketik pesan..." class="flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white outline-none focus:border-orange-500">
+                <button onclick="sendMessage()" class="px-3 py-2 bg-orange-500 hover:bg-orange-600 rounded-lg text-white transition-all">📤</button>
+            </div>
+        </div>
+        <button onclick="toggleChat()" id="chat-button" class="w-14 h-14 rounded-full bg-gradient-to-r from-[#ff4d4d] to-[#f97316] text-white font-bold text-2xl shadow-lg hover:scale-110 transition-all flex items-center justify-center">
+            💬
+        </button>
+    </div>
+
+    <script>
+        // ===== Database =====
+        const database = {
+            makanan: [
+                { id: 1, nama: "Ayam Geprek", harga: 10000, best: true, img: "https://i.pinimg.com/736x/a6/fb/29/a6fb29e53206b849ae18c5e5db939712.jpg" },
+                { id: 2, nama: "Nasi Goreng Spesial", harga: 10000, best: true, img: "https://awsimages.detik.net.id/community/media/visual/2023/08/18/resep-nasi-goreng-jawa_169.jpeg?w=1200" },
+                { id: 3, nama: "Nasi Uduk", harga: 10000, best: false, img: "https://image.idntimes.com/post/20250419/pexels-suhairytriyadhi-11912788-34ad38a2ffe93ff890d5524b702be458-a529d4cc60c45e63ce64b5fcef92776c.jpg" },
+                { id: 4, nama: "Mie Ayam Bakso", harga: 18000, best: false, img: "https://mc.tanahbumbukab.go.id/wp-content/uploads/2025/02/WhatsApp-Image-2025-02-11-at-17.49.51-1920x1440.jpeg" },
+                { id: 5, nama: "Bakso Urat", harga: 15000, best: true, img: "https://imgx.sonora.id/crop/0x0:0x0/x/photo/2020/10/03/3744728803.jpg" },
+                { id: 6, nama: "Mie Goreng", harga: 7000, best: false, img: "https://image.idn.media/post/20241113/mie-goreng-6715015-1920-4d6fb1f56ff7f543bcf771ef0ab0a6f9.jpg" },
+                { id: 7, nama: "Mie Rebus", harga: 7000, best: false, img: "https://assets.unileversolutions.com/recipes-v2/257303.jpg" }
+            ],
+            minuman: [
+                { id: 10, nama: "Es Jeruk", harga: 5000, best: true, img: "https://cdn1-production-images-kly.akamaized.net/2bUdwGUydtL50AOEMnCHNkD7FYQ=/469x625/smart/filters:quality(75):strip_icc():format(webp)/kly-media-production/medias/4777522/original/071308500_1710839241-iced-orange-cocktail-table__2_.jpg" },
+                { id: 11, nama: "Es Teh Manis", harga: 5000, best: true, img: "https://www.bakmigm.com/cfind/source/thumb/images/sku/cover_w480_h480_sku_teh-es.png" },
+                { id: 12, nama: "Jus Mangga", harga: 5000, best: false, img: "https://d1vbn70lmn1nqe.cloudfront.net/prod/wp-content/uploads/2022/08/05072542/manfaat-mengonsumsi-jus-mangga-untuk-kesehatan-tubuh-halodoc.jpg" },
+                { id: 13, nama: "Jus Alpukat", harga: 5000, best: false, img: "https://www.ninevibe.com/storage/statement-images/OD3rY1bPCixDb8NP2Z8Pi2325o3L47HKSknNyK0I.webp" },
+                { id: 14, nama: "Air Mineral", harga: 4000, best: true, img: "https://www.foodstation.id/wp-content/uploads/2021/06/FS-Mineral-scaled.jpg" },
+                { id: 15, nama: "Matcha Latte", harga: 10000, best: false, img: "https://itoen-ultrajaya.co.id/wp-content/uploads/2024/08/08-06-matcha-latte-no-sugar.jpg" },
+                { id: 16, nama: "Cappucino", harga: 10000, best: false, img: "https://arengaindonesia.com/wp-content/uploads/2025/04/Mocha-cappuccino-Es.jpg" },
+                { id: 17, nama: "Es Buah", harga: 7000, best: false, img: "https://marketplace.canva.com/KebSc/MAEkbrKebSc/1/tl/canva-ready-to-eat-sop-buah-or-es-buah-is-mixed-fruit-with-coconut-or-simple-syrup%2C-served-with-shaved-ice-and-add-condensed-milk.-popular-for-buka-puasa-%28breakfasting%29-MAEkbrKebSc.jpg" }
+            ],
+            snack: [
+                { id: 20, nama: "Basreng", harga: 5000, best: true, img: "https://ukhtiosaka.com/wp-content/uploads/2024/01/basreng-new.webp" },
+                { id: 21, nama: "Bakso Tusuk", harga: 2000, best: true, img: "https://i.pinimg.com/736x/b1/bd/b9/b1bdb9caca9edcd13af3f35a8b9f9723.jpg" },
+                { id: 22, nama: "Sate Ayam", harga: 3000, best: false, img: "https://i.gojekapi.com/darkroom/gofood-indonesia/v2/images/uploads/7b247c96-5e1a-426d-91de-905a9730992e_Go-Biz_20230530_120214.jpeg" },
+                { id: 23, nama: "Siomay", harga: 5000, best: false, img: "https://img-global.cpcdn.com/recipes/0f2235c1ddee51f6/680x781cq80/siomay-bandungindonesian-shumai-foto-resep-utama.jpg" },
+                { id: 24, nama: "Batagor", harga: 5000, best: false, img: "https://i.pinimg.com/736x/b4/27/9a/b4279a9dc7fbe09c12a49d3ea98ca71c.jpg" },
+                { id: 25, nama: "Gorengan", harga: 2000, best: false, img: "https://res.cloudinary.com/dk0z4ums3/image/upload/v1750237561/attached_image/apakah-gorengan-bikin-gemuk-ini-penjelasannya.jpg" },
+                { id: 26, nama: "Risol Mayo", harga: 3000, best: true, img: "https://static.promediateknologi.id/crop/0x0:0x0/0x0/webp/photo/p2/81/2025/09/03/IMG-20250903-WA0014-2740285691.jpg" },
+                { id: 27, nama: "Pisang Coklat", harga: 5000, best: false, img: "https://asset.kompas.com/crops/hEEZr_BVv0biGRKAQlc71JcsZHE=/56x42:936x629/1200x800/data/photo/2022/07/21/62d8f389f1e8a.jpg" }
+            ]
+        };
+
+        // ===== State =====
+        let cart = [],
+            user = "",
+            payMethod = "qris",
+            activeTab = "makanan",
+            selectedRating = 0,
+            appliedPromo = null,
+            promoDiscount = 0,
+            chatMessages = [],
+            isChatOpen = false;
+
+        // ===== Promo Database =====
+        const promos = {
+            "HEMAT50": { discount: 50000, nama: "Hemat 50rb" },
+            "GRATIS20": { discount: 20000, nama: "Gratis 20rb" },
+            "PROMO30": { discount: 30000, nama: "Hemat 30rb" },
+            "DIHOT10": { discountPercent: 10, nama: "Diskon 10%" }
+        };
+
+        // ===== Initialize =====
+        window.addEventListener('load', () => {
+            loadChatMessages();
+            checkPromos();
+        });
+
+        // ===== Login Handler =====
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            user = document.getElementById('username').value;
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('main-app').classList.remove('hidden');
+            document.getElementById('display-name').innerText = user;
+            renderMenu();
+        });
+
+        // ===== Tab Navigation =====
+        function changeTab(tab) {
+            activeTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            renderMenu();
+        }
+
+        // ===== Menu Rendering =====
+        function renderMenu(filter = "") {
+            const grid = document.getElementById('menu-grid');
+            const items = database[activeTab].filter(i => i.nama.toLowerCase().includes(filter.toLowerCase()));
+
+            grid.className = activeTab === 'minuman'
+                ? "grid grid-cols-2 md:grid-cols-3 gap-4 animate__animated animate__fadeIn"
+                : "grid grid-cols-1 md:grid-cols-2 gap-6 animate__animated animate__fadeIn";
+
+            grid.innerHTML = items.map(item => `
+                <div class="glass rounded-[1.5rem] overflow-hidden group border-white/5 relative">
+                    ${item.best ? '<span class="absolute top-2 left-2 z-10 best-seller-badge text-[7px] font-black px-2 py-0.5 rounded-full text-white uppercase tracking-tighter">Best Seller</span>' : ''}
+                    <div class="overflow-hidden">
+                        <img src="${item.img}" class="w-full ${activeTab === 'minuman' ? 'img-portrait' : 'img-landscape'} group-hover:scale-110 transition duration-700">
+                    </div>
+                    <div class="p-4 flex justify-between items-center">
+                        <div>
+                            <h4 class="font-bold text-white text-sm leading-tight">${item.nama}</h4>
+                            <p class="text-orange-500 font-black text-xs mt-1">Rp ${item.harga.toLocaleString()}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="shareMenu('${item.nama}', ${item.harga})" class="p-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all" title="Share">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C9.589 12.881 10 11.953 10 11V5m0 0a2 2 0 100-4 2 2 0 000 4zm7-2a2 2 0 11-4 0 2 2 0 014 0M9 19h6a2 2 0 002-2v-3.5a9.99 9.99 0 00-9-8.5 9.99 9.99 0 00-9 8.5V17a2 2 0 002 2z"></path></svg>
+                            </button>
+                            <button onclick="addToCart(${item.id}, '${activeTab}')" class="p-3 bg-gradient-to-br from-[#ff4d4d] to-[#f97316] rounded-xl hover:scale-110 active:scale-95 transition-all shadow-lg">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function searchMenu() {
+            renderMenu(document.getElementById('search-input').value);
+        }
+
+        // ===== Cart Functions =====
+        function addToCart(id, cat) {
+            const item = database[cat].find(i => i.id === id);
+            cart.push({ ...item, cartId: Date.now() });
+            updateCart();
+        }
+
+        function removeFromCart(cId) {
+            cart = cart.filter(i => i.cartId !== cId);
+            updateCart();
+        }
+
+        function updateCart() {
+            const list = document.getElementById('cart-list');
+            let total = cart.reduce((sum, item) => sum + item.harga, 0);
+
+            // Apply promo discount
+            if (appliedPromo) {
+                const promo = promos[appliedPromo];
+                if (promo.discountPercent) {
+                    promoDiscount = Math.floor(total * promo.discountPercent / 100);
+                } else {
+                    promoDiscount = promo.discount;
+                }
+                total -= promoDiscount;
+            }
+
+            document.getElementById('total-price').innerText = `Rp ${Math.max(0, total).toLocaleString()}`;
+
+            list.innerHTML = cart.length
+                ? cart.map(item => `
+                    <div class="flex items-center justify-between bg-white/5 p-2 rounded-xl border border-white/5 animate__animated animate__fadeInRight animate__faster">
+                        <div class="flex items-center gap-3">
+                            <img src="${item.img}" class="w-8 h-8 rounded-lg object-cover">
+                            <div>
+                                <h5 class="text-[9px] font-bold text-white leading-tight">${item.nama}</h5>
+                                <p class="text-[9px] text-orange-500 font-black">Rp ${item.harga.toLocaleString()}</p>
+                            </div>
+                        </div>
+                        <button onclick="removeFromCart(${item.cartId})" class="text-slate-600 hover:text-red-500 p-1">×</button>
+                    </div>
+                `).join('')
+                : '<p class="text-center text-slate-500 italic py-10 text-[10px]">Belum ada menu</p>';
+        }
+
+        // ===== Payment Methods =====
+        function setPay(method) {
+            payMethod = method;
+            const qrisBtn = document.getElementById('btn-qris');
+            const cashBtn = document.getElementById('btn-cash');
+            const activeClass = "flex-1 py-3 rounded-xl border-2 border-orange-500 bg-orange-500/10 text-orange-500 font-bold text-[10px]";
+            const inactiveClass = "flex-1 py-3 rounded-xl border-2 border-slate-700 text-slate-500 font-bold text-[10px]";
+
+            qrisBtn.className = method === 'qris' ? activeClass : inactiveClass;
+            cashBtn.className = method === 'cash' ? activeClass : inactiveClass;
+        }
+
+        // ===== Promo Functions =====
+        function checkPromos() {
+            const hasPromo = Object.keys(promos).length > 0;
+            if (hasPromo) {
+                document.getElementById('promo-banner').classList.remove('hidden');
+            }
+        }
+
+        function showPromoModal() {
+            const body = document.getElementById('modal-body');
+            body.innerHTML = `
+                <div class="mb-4 text-4xl">🎉</div>
+                <h2 class="text-lg font-black text-white uppercase tracking-tighter mb-4">Promo Spesial</h2>
+                <div class="space-y-3 text-left mb-6 max-h-[300px] overflow-y-auto">
+                    ${Object.keys(promos).map(code => {
+                        const promo = promos[code];
+                        const discountText = promo.discountPercent 
+                            ? `Diskon ${promo.discountPercent}%` 
+                            : `Hemat Rp ${promo.discount.toLocaleString()}`;
+                        return `
+                            <div class="bg-gradient-to-r from-purple-600 to-pink-600 p-3 rounded-xl text-white cursor-pointer hover:scale-105 transition-all" onclick="copyPromoCode('${code}')">
+                                <div class="font-black text-sm">${code}</div>
+                                <div class="text-xs opacity-90">${discountText}</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                <button type="button" class="w-full mb-3 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold text-sm transition-all" onclick="closeModal()">
+                    ← Kembali ke Beranda
+                </button>
+                <p class="text-[10px] text-slate-400 text-center">👆 Klik untuk copy kode</p>
+            `;
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        function copyPromoCode(code) {
+            navigator.clipboard.writeText(code);
+            document.getElementById('promo-code').value = code;
+            alert(`Kode ${code} sudah dicopy!`);
+        }
+
+        function applyPromo() {
+            const code = document.getElementById('promo-code').value.toUpperCase();
+            if (!code) {
+                alert("Masukkan kode promo!");
+                return;
+            }
+
+            if (!promos[code]) {
+                alert("Kode promo tidak valid!");
+                return;
+            }
+
+            appliedPromo = code;
+            const promo = promos[code];
+            const discountText = promo.discountPercent 
+                ? `✅ Diskon ${promo.discountPercent}% berhasil dipakai!`
+                : `✅ Hemat Rp ${promo.discount.toLocaleString()}!`;
+            
+            document.getElementById('promo-discount').textContent = discountText;
+            document.getElementById('promo-discount').classList.remove('hidden');
+            updateCart();
+        }
+
+        // ===== Sharing Function =====
+        function shareMenu(menuName, price) {
+            const text = `Cek menu ${menuName} (Rp ${price.toLocaleString()}) di KantinGO! Pesan sekarang: `;
+            const shareUrl = window.location.href;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'KantinGO',
+                    text: text,
+                    url: shareUrl
+                }).catch(err => console.log('Error sharing:', err));
+            } else {
+                const encodedText = encodeURIComponent(text);
+                const whatsappUrl = `https://wa.me/?text=${encodedText}${shareUrl}`;
+                window.open(whatsappUrl, '_blank');
+            }
+        }
+
+        // ===== History Functions =====
+        function showHistory() {
+            const body = document.getElementById('modal-body');
+            const history = JSON.parse(localStorage.getItem('kantingo_history')) || [];
+
+            if (history.length === 0) {
+                body.innerHTML = `
+                    <div class="mb-4 text-4xl">📭</div>
+                    <h2 class="text-lg font-black text-white mb-2">Belum Ada Pesanan</h2>
+                    <p class="text-[10px] text-slate-400">Pesan sekarang dan lihat riwayat pesananmu di sini!</p>
+                `;
+            } else {
+                body.innerHTML = `
+                    <h2 class="text-lg font-black text-white uppercase tracking-tighter mb-4">📋 History Pesanan</h2>
+                    <div class="max-h-[400px] overflow-y-auto space-y-3">
+                        ${history.map(order => `
+                            <div class="bg-white/5 p-3 rounded-xl border border-white/5">
+                                <div class="text-[10px] text-slate-400 mb-1">${order.date}</div>
+                                <div class="text-xs font-bold text-white mb-2">${order.items.length} item</div>
+                                <div class="text-xs text-orange-500 font-black">Rp ${order.total.toLocaleString()}</div>
+                                ${order.promo ? `<div class="text-[9px] text-green-400 mt-1">✅ Promo: ${order.promo}</div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        // ===== Live Chat Functions =====
+        function toggleChat() {
+            isChatOpen = !isChatOpen;
+            const chatBubble = document.getElementById('chat-bubble');
+            const chatButton = document.getElementById('chat-button');
+
+            if (isChatOpen) {
+                chatBubble.classList.remove('hidden');
+                chatBubble.classList.add('flex');
+                chatButton.style.display = 'none';
+                document.getElementById('chat-input').focus();
+            } else {
+                chatBubble.classList.add('hidden');
+                chatBubble.classList.remove('flex');
+                chatButton.style.display = 'flex';
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            chatMessages.push({ user: true, text: message });
+            renderChatMessages();
+            input.value = '';
+
+            setTimeout(() => {
+                const responses = [
+                    "Terima kasih sudah bertanya! 😊",
+                    "Baik, kami akan membantu Anda! 👍",
+                    "Pesanan Anda sudah kami terima! 🛍️",
+                    "Ada yang bisa kami bantu lagi? 💬",
+                    "Silakan hubungi admin untuk bantuan lebih lanjut! 📞"
+                ];
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                chatMessages.push({ user: false, text: randomResponse });
+                renderChatMessages();
+                saveChatMessages();
+            }, 800);
+        }
+
+        function renderChatMessages() {
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = chatMessages.map(msg => `
+                <div class="message ${msg.user ? 'user' : 'admin'}">
+                    ${msg.text}
+                </div>
+            `).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function saveChatMessages() {
+            localStorage.setItem('kantingo_chat', JSON.stringify(chatMessages));
+        }
+
+        function loadChatMessages() {
+            chatMessages = JSON.parse(localStorage.getItem('kantingo_chat')) || [];
+            renderChatMessages();
+        }
+
+        // ===== Checkout =====
+        function checkout() {
+            if (!cart.length) return alert("Keranjang kosong!");
+
+            let total = cart.reduce((sum, item) => sum + item.harga, 0);
+            if (appliedPromo && promoDiscount) {
+                total -= promoDiscount;
+            }
+
+            const order = {
+                id: Date.now(),
+                user: user,
+                items: cart,
+                total: Math.max(0, total),
+                promo: appliedPromo,
+                discount: promoDiscount,
+                method: payMethod,
+                date: new Date().toLocaleString('id-ID')
+            };
+
+            let history = JSON.parse(localStorage.getItem('kantingo_history')) || [];
+            history.unshift(order);
+            localStorage.setItem('kantingo_history', JSON.stringify(history));
+
+            const body = document.getElementById('modal-body');
+
+            if (payMethod === 'qris') {
+                body.innerHTML = `
+                    <h2 class="text-lg font-black mb-4 text-white uppercase tracking-tighter">Foto QRIS Saya</h2>
+                    <div class="bg-white p-3 rounded-2xl inline-block mb-4 shadow-xl">
+                        <img src="kodeqris.jpeg" alt="Foto QRIS Saya" class="w-48 h-48 sm:w-56 sm:h-56 object-contain">
+                    </div>
+                    <div class="text-xl font-black text-orange-500 mb-6">Rp ${order.total.toLocaleString()}</div>
+                    <button onclick="showReviewForm()" class="w-full py-4 bg-orange-500 rounded-2xl text-white font-black uppercase text-xs tracking-widest">Selesai Bayar</button>
+                `;
+            } else {
+                body.innerHTML = `
+                    <div class="mb-4 text-5xl">💵</div>
+                    <h2 class="text-lg font-black mb-4 text-white uppercase tracking-tighter">Bayar Kasir</h2>
+                    <div class="bg-slate-800 p-4 rounded-2xl border border-orange-500/20 mb-6">
+                        <div class="text-xl font-black text-orange-500 mb-2">Rp ${order.total.toLocaleString()}</div>
+                        <p class="text-[10px] text-white">Atas Nama: ${user}</p>
+                    </div>
+                    <button onclick="showReviewForm()" class="w-full py-4 bg-orange-500 rounded-2xl text-white font-black uppercase text-xs tracking-widest">Sudah Bayar</button>
+                `;
+            }
+
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        // ===== Review Functions =====
+        function showReviewForm() {
+            const body = document.getElementById('modal-body');
+            selectedRating = 0;
+
+            body.innerHTML = `
+                <div class="mb-4 text-4xl">😋</div>
+                <h2 class="text-lg font-black text-white uppercase tracking-tighter mb-1">Gimana Rasanya?</h2>
+                <p class="text-[10px] text-slate-400 mb-6 uppercase font-bold tracking-widest">Berikan ulasan Anda</p>
+
+                <div class="flex justify-center gap-2 mb-6">
+                    ${[1, 2, 3, 4, 5].map(n => `<span onclick="setStar(${n})" id="star-${n}" class="star-rating text-2xl font-black">★</span>`).join('')}
+                </div>
+
+                <textarea id="review-text" placeholder="Ceritain rasa makanannya di sini..." class="w-full bg-slate-900 border border-slate-700 rounded-2xl p-4 text-xs text-white outline-none focus:border-orange-500 mb-4 h-24 resize-none"></textarea>
+
+                <button onclick="submitReview()" class="w-full py-4 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl text-white font-black uppercase text-xs tracking-widest shadow-lg">Kirim Ulasan</button>
+            `;
+        }
+
+        function setStar(n) {
+            selectedRating = n;
+            for (let i = 1; i <= 5; i++) {
+                const star = document.getElementById(`star-${i}`);
+                if (i <= n) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            }
+        }
+
+        function submitReview() {
+            const text = document.getElementById('review-text').value;
+            if (selectedRating === 0) return alert("Kasih bintang dulu dong!");
+
+            // Add review to UI
+            const container = document.getElementById('reviews-container');
+            const newReview = document.createElement('div');
+            newReview.className = "glass p-5 rounded-3xl border-white/5 animate__animated animate__backInUp";
+            newReview.innerHTML = `
+                <div class="flex justify-between items-start mb-3">
+                    <p class="font-bold text-sm text-white">${user}</p>
+                    <div class="text-orange-500 text-xs font-black">${'★'.repeat(selectedRating)}${'☆'.repeat(5 - selectedRating)}</div>
+                </div>
+                <p class="text-slate-400 text-xs italic leading-relaxed">"${text || 'Mantap pol!'}"</p>
+            `;
+            container.prepend(newReview);
+
+            // Reset & Close
+            alert("Terima kasih atas ulasannya!");
+            cart = [];
+            updateCart();
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
